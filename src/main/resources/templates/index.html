@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户积分系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .nav-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .feature {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .feature h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .feature p {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>用户积分系统</h1>
+        <p class="subtitle">每下单100元，奖励10积分</p>
+
+        <div class="nav-links">
+            <a href="/register" class="nav-link">用户注册</a>
+            <a href="/order" class="nav-link">下单购物</a>
+            <a href="/points" class="nav-link">积分查询</a>
+            <a href="/leaderboard" class="nav-link" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #333;">积分排行榜</a>
+        </div>
+
+        <div class="feature">
+            <h3>积分规则</h3>
+            <p>订单金额每满100元，自动获得10积分<br>积分实时累计，可随时查询</p>
+        </div>
+    </div>
+</body>
+</html>

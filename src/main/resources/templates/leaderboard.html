@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>积分排行榜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+            font-size: 32px;
+        }
+        .update-info {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .query-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .query-section label {
+            color: #555;
+            font-weight: 500;
+        }
+        .query-section input {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 150px;
+        }
+        .query-section input:focus {
+            outline: none;
+            border-color: #ff9a9e;
+        }
+        .query-section button {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .query-section button:hover {
+            transform: translateY(-2px);
+        }
+        .my-rank {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .my-rank h3 {
+            margin-bottom: 10px;
+        }
+        .my-rank .rank-info {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .my-rank .rank-item {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .my-rank .rank-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .leaderboard {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .leaderboard-header {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 15px 20px;
+            display: grid;
+            grid-template-columns: 60px 1fr 120px;
+            color: #333;
+            font-weight: bold;
+        }
+        .leaderboard-item {
+            padding: 15px 20px;
+            display: grid;
+            grid-template-columns: 60px 1fr 120px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s;
+        }
+        .leaderboard-item:hover {
+            background: #f8f9fa;
+        }
+        .leaderboard-item.highlight {
+            background: #fff3cd;
+        }
+        .rank-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+        .rank-1 {
+            background: linear-gradient(135deg, #ffd700, #ffed4a);
+            color: #333;
+        }
+        .rank-2 {
+            background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+            color: #333;
+        }
+        .rank-3 {
+            background: linear-gradient(135deg, #cd7f32, #dda15e);
+            color: white;
+        }
+        .rank-other {
+            background: #e9ecef;
+            color: #666;
+        }
+        .username {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        .points {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #ff9a9e;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #ff9a9e;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>积分排行榜</h1>
+            <div class="update-info" id="updateInfo">每 5 分钟自动更新</div>
+        </div>
+
+        <div class="query-section">
+            <label>查询我的排名：</label>
+            <input type="number" id="userIdInput" placeholder="用户ID" min="1">
+            <button onclick="queryMyRank()">查询</button>
+        </div>
+
+        <div id="myRank" class="my-rank">
+            <h3>我的排名</h3>
+            <div class="rank-info">
+                <div>
+                    <div class="rank-item" id="myRankNum">-</div>
+                    <div class="rank-label">排名</div>
+                </div>
+                <div>
+                    <div class="rank-item" id="myUsername">-</div>
+                    <div class="rank-label">用户名</div>
+                </div>
+                <div>
+                    <div class="rank-item" id="myPoints">-</div>
+                    <div class="rank-label">积分</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="leaderboard">
+            <div class="leaderboard-header">
+                <span>排名</span>
+                <span>用户</span>
+                <span>积分</span>
+            </div>
+            <div id="leaderboardList">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+
+        <a href="/" class="back-link">返回首页</a>
+    </div>
+
+    <script>
+        let currentUserId = null;
+
+        function loadLeaderboard() {
+            fetch('/api/leaderboard/top100')
+                .then(response => response.json())
+                .then(data => {
+                    renderLeaderboard(data);
+                    updateRefreshTime();
+                })
+                .catch(error => {
+                    document.getElementById('leaderboardList').innerHTML = '<div class="loading">加载失败</div>';
+                });
+        }
+
+        function renderLeaderboard(data) {
+            const listDiv = document.getElementById('leaderboardList');
+            if (data.length === 0) {
+                listDiv.innerHTML = '<div class="loading">暂无数据</div>';
+                return;
+            }
+
+            let html = '';
+            data.forEach(item => {
+                const rankClass = item.rank <= 3 ? 'rank-' + item.rank : 'rank-other';
+                const highlightClass = currentUserId && item.userId === currentUserId ? 'highlight' : '';
+                html += '<div class="leaderboard-item ' + highlightClass + '">' +
+                    '<div class="rank-badge ' + rankClass + '">' + item.rank + '</div>' +
+                    '<div class="username">' + item.username + '</div>' +
+                    '<div class="points">' + item.balance + '</div>' +
+                '</div>';
+            });
+            listDiv.innerHTML = html;
+        }
+
+        function updateRefreshTime() {
+            fetch('/api/leaderboard/rank/1')
+                .then(response => {
+                    if (response.ok) return response.json();
+                    return null;
+                })
+                .then(data => {
+                    if (data && data.lastUpdateTime) {
+                        const date = new Date(data.lastUpdateTime);
+                        const timeStr = date.toLocaleString('zh-CN');
+                        document.getElementById('updateInfo').innerText = '上次更新: ' + timeStr + ' (每 5 分钟自动更新)';
+                    }
+                });
+        }
+
+        function queryMyRank() {
+            const userId = document.getElementById('userIdInput').value;
+            if (!userId) {
+                alert('请输入用户ID');
+                return;
+            }
+
+            fetch('/api/leaderboard/rank/' + userId)
+                .then(response => {
+                    if (response.ok) return response.json();
+                    throw new Error('用户不存在');
+                })
+                .then(data => {
+                    currentUserId = parseInt(userId);
+                    document.getElementById('myRank').style.display = 'block';
+                    document.getElementById('myRankNum').innerText = '第 ' + data.rank + ' 名';
+                    document.getElementById('myUsername').innerText = data.username;
+                    document.getElementById('myPoints').innerText = data.balance;
+
+                    renderLeaderboard(data.top100);
+
+                    const date = new Date(data.lastUpdateTime);
+                    document.getElementById('updateInfo').innerText = '上次更新: ' + date.toLocaleString('zh-CN') + ' (每 5 分钟自动更新)';
+                })
+                .catch(error => {
+                    alert('查询失败：' + error.message);
+                    document.getElementById('myRank').style.display = 'none';
+                });
+        }
+
+        loadLeaderboard();
+    </script>
+</body>
+</html>
